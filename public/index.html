@@ -12,20 +12,36 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Welcome to NIS 2025 Webapp</h1>
-    <p>This is your Azure webapp boilerplate start page.</p>
-    <p>Edit <code>public/index.html</code> to customize your homepage.</p>
+  <div style="display: flex; align-items: stretch; justify-content: center; gap: 24px;">
+  <div style="display: flex; flex-direction: column; gap: 24px; justify-content: center; align-items: center; flex: 1;">
+        <img src="dynboard.png" style="width:300px;">
+        <img src="rabbits.jpg" style="width:300px;">
+      </div>
+  <div style="display: flex; flex-direction: column; gap: 24px; align-items: center; flex-shrink: 0;">
+        <div class="container">
+          <h1>Welcome problem solver!</h1>
+          <p>Keep up with the latest tech news here: https://contica.se/tech-blog/</p>
+          <p>Are you visiting NIS2025? Try to solve the riddles to win a prize!</p>
+          <div style="margin-top:32px; display:flex; gap:16px; justify-content:center;">
+            <a href="page-a.html"><button style="padding:12px 24px; font-size:16px; cursor:pointer;">Go to Page A</button></a>
+            <a href="page-b.html"><button style="padding:12px 24px; font-size:16px; cursor:pointer;">Go to Page B</button></a>
+          </div>
+          <!-- Conversational Agent IFrame -->
+          <div style="max-width:100%; margin:40px 0 0 0;">
+            <iframe
+              src="https://la-nis-2025-gcffhkhjgka7hmh9.northeurope-01.azurewebsites.net/api/agentsChat/wf-conversational/IFrame"
+              width="100%"
+              height="500"
+              style="border: none;"
+              title="Conversational Agent">
+            </iframe>
+          </div>
+        </div>
+      </div>
+  <div style="display: flex; flex-direction: column; gap: 24px; justify-content: center; align-items: center; flex: 1;">
+        <img src="phonetics-1.png" style="width:400px;">
+        <img src="right2.jpg" style="width:100px;">
+      </div>
   </div>
-    <!-- Conversational Agent IFrame -->
-    <div style="max-width:600px; margin:40px auto;">
-      <iframe
-        src="https://la-nis-2025-gcffhkhjgka7hmh9.northeurope-01.azurewebsites.net/api/agentsChat/wf-conversational/IFrame"
-        width="100%"
-        height="500"
-        style="border: none;"
-        title="Conversational Agent">
-      </iframe>
-    </div>
 </body>
 </html>
