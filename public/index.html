@@ -1,63 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>NIS 2025 Webapp</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 60px auto; background: #fff; padding: 32px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    h1 { color: #0078d4; }
-    p { color: #333; }
+    :root { color-scheme: light dark; }
+    body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
+    .container { max-width:600px; margin:60px auto; background:#fff; padding:32px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    h1 { color:#0078d4; margin-top:0; }
+    p { color:#333; }
+    .row { display:flex; align-items:stretch; justify-content:center; gap:24px; }
+    .col { display:flex; flex-direction:column; gap:24px; align-items:center; justify-content:center; flex:1; }
+    .fixed { flex-shrink:0; }
+    .btn { padding:12px 24px; font-size:16px; cursor:pointer; border:0; border-radius:6px; background:#0078d4; color:white; }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+    #authStatus { margin-top:16px; color:#555; font-size:14px; }
+    iframe { border:0; width:100%; height:500px; display:none; }
   </style>
 </head>
 <body>
-  <div style="display: flex; align-items: stretch; justify-content: center; gap: 24px;">
-  <div style="display: flex; flex-direction: column; gap: 24px; justify-content: center; align-items: center; flex: 1;">
-        <img src="skolmatt.png" style="width:400px;">
-        <img src="rabbits.jpg" style="width:400px;">
-      </div>
-  <div style="display: flex; flex-direction: column; gap: 24px; align-items: center; flex-shrink: 0;">
-        <div class="container">
-          <h1>Welcome problem solver!</h1>
-          <p>Keep up with the latest tech news here: https://contica.se/tech-blog/</p>
-          <p>Are you visiting NIS2025? Try to solve the riddles to win a prize!</p>
-          <div style="margin-top:32px; display:flex; gap:16px; justify-content:center;">
-            <a href="page-a.html"><button style="padding:12px 24px; font-size:16px; cursor:pointer;">Go to Page A</button></a>
-            <a href="page-b.html"><button style="padding:12px 24px; font-size:16px; cursor:pointer;">Go to Page B</button></a>
-          </div>
-          <!-- Conversational Agent IFrame (auth-aware) -->
-          <div id="loading" style="max-width:100%; margin:40px 0 0 0;">Signing you in…</div>
-          <iframe id="agentFrame" style="display:none;width:100%;height:500px;border:0"></iframe>
-          <script>
-            const appBase = window.location.origin;
-            const agentPath = '/api/agentsChat/wf-conversational/IFrame';
-            async function ensureAuthAndRender() {
-              try {
-                const me = await fetch(`${appBase}/.auth/me`, { credentials: 'include' });
-                if (me.status !== 200) {
-                  const ret = encodeURIComponent(window.location.href);
-                  window.location.href = `${appBase}/.auth/login/aad?post_login_redirect_url=${ret}`;
-                  return;
-                }
-                // Auth OK – render the iframe
-                const frame = document.getElementById('agentFrame');
-                frame.src = `${appBase}${agentPath}`;
-                frame.style.display = 'block';
-                document.getElementById('loading').style.display = 'none';
-              } catch (e) {
-                console.error(e);
-                document.getElementById('loading').textContent = 'Failed to verify sign-in.';
-              }
-            }
-            ensureAuthAndRender();
-          </script>
+  <div class="row">
+    <div class="col">
+      <img src="skolmatt.png" style="width:400px;" alt="skolmatt">
+      <img src="rabbits.jpg" style="width:400px;" alt="rabbits">
+    </div>
+
+    <div class="col fixed">
+      <div class="container">
+        <h1>Welcome problem solver!</h1>
+        <p>Keep up with the latest tech news here: <a href="https://contica.se/tech-blog/" target="_blank" rel="noopener">https://contica.se/tech-blog/</a></p>
+        <p>Are you visiting NIS2025? Try to solve the riddles to win a prize!</p>
+
+        <div style="margin-top:32px; display:flex; gap:16px; justify-content:center;">
+          <a href="page-a.html"><button class="btn" type="button">Go to Page A</button></a>
+          <a href="page-b.html"><button class="btn" type="button">Go to Page B</button></a>
+        </div>
+
+        <!-- Sign-in helper (shown only if needed) -->
+        <div id="authStatus">Checking sign-in…</div>
+        <div style="margin-top:12px;">
+          <button id="signinBtn" class="btn" style="display:none;" type="button">Sign in</button>
+        </div>
+
+        <!-- Conversational Agent IFrame (rendered after auth) -->
+        <div style="max-width:100%; margin:24px 0 0 0;">
+          <iframe
+            id="agentFrame"
+            src="https://la-nis-2025-gcffhkhjgka7hmh9.northeurope-01.azurewebsites.net/api/agentsChat/wf-conversational/IFrame"
+            title="Conversational Agent">
+          </iframe>
         </div>
       </div>
-  <div style="display: flex; flex-direction: column; gap: 24px; justify-content: center; align-items: center; flex: 1;">
-        <img src="phonetics-1.png" style="width:400px;">
-        <img src="collatz2.png" style="width:400px;">
-      </div>
+    </div>
+
+    <div class="col">
+      <img src="phonetics-1.png" style="width:400px;" alt="phonetics">
+      <img src="collatz2.png" style="width:400px;" alt="collatz">
+    </div>
   </div>
+
+  <script>
+    (function () {
+      const frame = document.getElementById('agentFrame');
+      const statusEl = document.getElementById('authStatus');
+      const signinBtn = document.getElementById('signinBtn');
+
+      // Derive the EasyAuth base (scheme + host) from the iframe src.
+      const frameUrl = new URL(frame.getAttribute('src'), window.location.href);
+      const appBase = frameUrl.origin; // e.g., https://la-nis-2025-....azurewebsites.net
+
+      // Where to come back after sign-in:
+      const returnUrl = encodeURIComponent(window.location.href);
+      const loginUrl  = `${appBase}/.auth/login/aad?post_login_redirect_url=${returnUrl}`;
+      const meUrl     = `${appBase}/.auth/me`;
+
+      // Helper: start top-level login
+      function startLogin() {
+        // Navigate the TOP window (not the iframe) so AAD is not framed.
+        window.location.href = loginUrl;
+      }
+
+      // If the host and the app are on different registrable domains, third-party cookies
+      // can be blocked. This small hint helps with debugging.
+      function sameSiteHint() {
+        try {
+          const hostDomain = location.hostname.split('.').slice(-2).join('.');
+          const appDomain  = frameUrl.hostname.split('.').slice(-2).join('.');
+          if (hostDomain && appDomain && hostDomain !== appDomain) {
+            return "Note: You're embedding across different sites; some browsers may block third-party cookies. Prefer the same domain or a subdomain if possible.";
+          }
+        } catch { /* ignore */ }
+        return "";
+      }
+
+      async function ensureAuthAndRender() {
+        try {
+          statusEl.textContent = 'Checking sign-in…';
+          const r = await fetch(meUrl, { credentials: 'include' });
+
+          if (r.status === 200) {
+            // We have an EasyAuth session for the iframe's origin. Show the iframe.
+            frame.style.display = 'block';
+            statusEl.textContent = 'Signed in ✔';
+            signinBtn.style.display = 'none';
+            return;
+          }
+
+          // Not authenticated yet – show a sign-in button and message.
+          const hint = sameSiteHint();
+          statusEl.textContent = `You need to sign in to continue.${hint ? ' ' + hint : ''}`;
+          signinBtn.style.display = 'inline-block';
+          signinBtn.onclick = startLogin;
+
+        } catch (e) {
+          console.error('Auth check failed:', e);
+          statusEl.textContent = 'Failed to verify sign-in. Please try again.';
+          signinBtn.style.display = 'inline-block';
+          signinBtn.onclick = startLogin;
+        }
+      }
+
+      // Kick it off
+      ensureAuthAndRender();
+    })();
+  </script>
+
+  <noscript>
+    <div style="max-width:600px;margin:24px auto;padding:12px;background:#fff;border-radius:8px;">
+      JavaScript is required to check your sign-in and load the agent.
+    </div>
+  </noscript>
 </body>
 </html>
