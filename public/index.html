@@ -26,16 +26,32 @@
             <a href="page-a.html"><button style="padding:12px 24px; font-size:16px; cursor:pointer;">Go to Page A</button></a>
             <a href="page-b.html"><button style="padding:12px 24px; font-size:16px; cursor:pointer;">Go to Page B</button></a>
           </div>
-          <!-- Conversational Agent IFrame -->
-          <div style="max-width:100%; margin:40px 0 0 0;">
-            <iframe
-              src="https://la-nis-2025-gcffhkhjgka7hmh9.northeurope-01.azurewebsites.net/api/agentsChat/wf-conversational/IFrame"
-              width="100%"
-              height="500"
-              style="border: none;"
-              title="Conversational Agent">
-            </iframe>
-          </div>
+          <!-- Conversational Agent IFrame (auth-aware) -->
+          <div id="loading" style="max-width:100%; margin:40px 0 0 0;">Signing you in…</div>
+          <iframe id="agentFrame" style="display:none;width:100%;height:500px;border:0"></iframe>
+          <script>
+            const appBase = window.location.origin;
+            const agentPath = '/api/agentsChat/wf-conversational/IFrame';
+            async function ensureAuthAndRender() {
+              try {
+                const me = await fetch(`${appBase}/.auth/me`, { credentials: 'include' });
+                if (me.status !== 200) {
+                  const ret = encodeURIComponent(window.location.href);
+                  window.location.href = `${appBase}/.auth/login/aad?post_login_redirect_url=${ret}`;
+                  return;
+                }
+                // Auth OK – render the iframe
+                const frame = document.getElementById('agentFrame');
+                frame.src = `${appBase}${agentPath}`;
+                frame.style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+              } catch (e) {
+                console.error(e);
+                document.getElementById('loading').textContent = 'Failed to verify sign-in.';
+              }
+            }
+            ensureAuthAndRender();
+          </script>
         </div>
       </div>
   <div style="display: flex; flex-direction: column; gap: 24px; justify-content: center; align-items: center; flex: 1;">
